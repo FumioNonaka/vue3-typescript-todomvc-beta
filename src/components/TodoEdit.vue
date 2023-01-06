@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import type { Directive } from "vue";
 import type { Todo } from "../App.vue";
 
 interface Props {
+  editedTodo: Todo | null;
   todo: Todo;
 }
 interface Emits {
@@ -27,16 +29,25 @@ const onInput = ({ target }: Event) => {
     editedTitle.value = target.value;
   }
 };
+const vTodoFocus: Directive<HTMLInputElement> = {
+  updated: (element, binding) => {
+    if (binding.value) {
+      element.focus();
+    }
+  },
+};
 </script>
 
 <template>
   <input
-    id="edit"
+    :id="`edit-${todo.id}`"
     class="edit"
     type="text"
     :value="todo.title"
+    @blur="cancelEdit"
     @input="onInput"
     @keypress.enter="doneEdit"
     @keyup.esc="cancelEdit"
+    v-todo-focus="editedTodo === todo"
   />
 </template>
